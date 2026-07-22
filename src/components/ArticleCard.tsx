@@ -1,26 +1,27 @@
 import type { Article } from "../types";
 import { formatRelative } from "../lib/format";
-import { estimateReadTime, wordCount, extractImage } from "../lib/articleMetrics";
+import { estimateReadTime, wordCount } from "../lib/articleMetrics";
 
 interface ArticleCardProps {
   article: Article;
   onOpen: (article: Article) => void;
+  isRead: boolean;
 }
 
 const FRESH_THRESHOLD_MS = 24 * 86_400_000;
 
-export function ArticleCard({ article, onOpen }: ArticleCardProps) {
-  const image = extractImage(article.content);
+export function ArticleCard({ article, onOpen, isRead }: ArticleCardProps) {
   const isFresh = article.publishedAt !== null && Date.now() - article.publishedAt < FRESH_THRESHOLD_MS;
   const minutes = estimateReadTime(article.content);
   const words = wordCount(article.content);
 
   return (
     <article
-      className="card fade-in flex flex-col gap-2 p-3"
+      className={`card fade-in flex flex-col gap-2 p-3 ${isRead ? "opacity-50" : ""}`}
       onClick={() => onOpen(article)}
       role="button"
       tabIndex={0}
+      aria-label={article.title}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -29,9 +30,9 @@ export function ArticleCard({ article, onOpen }: ArticleCardProps) {
       }}
     >
       {/* Thumbnail — compact, only if image exists */}
-      {image && (
+      {article.imageUrl && (
         <img
-          src={image}
+          src={article.imageUrl}
           alt=""
           className="h-20 w-full rounded-lg border border-ink object-cover"
           loading="lazy"

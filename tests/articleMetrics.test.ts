@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { estimateReadTime, wordCount, extractImage } from "../src/lib/articleMetrics";;
+import { estimateReadTime, wordCount, extractImage } from "../src/lib/articleMetrics";
 
 describe("wordCount", () => {
   it("counts words in plain text", () => {

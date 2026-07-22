@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { parseFeed } from "../src/lib/feedParser";;
+import { parseFeed } from "../src/lib/feedParser";
 
 const RSS2_SAMPLE = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">

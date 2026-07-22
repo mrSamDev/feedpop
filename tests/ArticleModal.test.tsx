@@ -11,6 +11,7 @@ const article: Article = {
   link: "https://x.com/1",
   description: "Summary",
   content: "<p>The full article content.</p>",
+  imageUrl: null,
   author: "Jane Doe",
   publishedAt: Date.parse("2025-07-21T10:00:00Z"),
 };

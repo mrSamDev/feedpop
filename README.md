@@ -1,6 +1,8 @@
 # FeedPop
 
-A small RSS and Atom reader. You add a feed URL, the app pulls the articles, and your subscriptions stick around between visits. It's built with React, Vite, Tailwind, and TanStack Query, with a thin Cloudflare Worker doing the fetching.
+A small RSS and Atom reader. You add a feed URL, the app pulls the articles, and your subscriptions stick around between visits.
+
+**Stack:** React 19 · Vite 8 · Tailwind CSS v4 · TanStack Query v5 · TypeScript 6 · Cloudflare Workers · Vitest + Testing Library
 
 ## Why there's an API at all
 
@@ -40,3 +42,44 @@ Tell the frontend where the proxy lives by setting `VITE_PROXY_URL` to that work
 Leave `VITE_PROXY_URL` unset and the frontend falls back to `/api/feed`. That only works when the page and the proxy share an origin, which is true for a single Pages project with a Pages Function but not when the two are split across Workers and Pages. Pick one setup and set the variable to match.
 
 If `wrangler` isn't installed, `npx wrangler` will pull it on demand. You'll need to run `npx wrangler login` once to authenticate.
+
+## Deploying with Make
+
+A `Makefile` wraps the whole workflow so you don't have to remember the individual commands. Run `make help` to see every target.
+
+### One-shot full deploy
+
+```bash
+make deploy-all
+```
+
+Deploys the worker first, then builds the frontend with `VITE_PROXY_URL` baked in and pushes it to Cloudflare Pages. Both halves end up live and wired together.
+
+### Individual targets
+
+| Target | What it does |
+| --- | --- |
+| `make install` | Install dependencies (auto-detects bun, pnpm, or npm) |
+| `make dev` | Start the Vite dev server with the feed proxy included |
+| `make build` | Build `dist/` with `VITE_PROXY_URL` baked in |
+| `make test` | Run the vitest suite |
+| `make typecheck` | Type-check without emitting |
+| `make clean` | Remove build artifacts |
+| `make deploy-worker` | Deploy the feed-proxy worker to Cloudflare Workers |
+| `make deploy-pages` | Build and deploy the frontend to Cloudflare Pages (production branch) |
+| `make deploy-all` | Deploy the worker, then build and deploy the frontend |
+| `make worker-whoami` | Show the authenticated Cloudflare account |
+| `make worker-dev` | Run the worker locally with `wrangler dev` |
+| `make worker-tail` | Tail live worker logs |
+| `make pages-list` | List Cloudflare Pages projects |
+| `make pages-init` | Create the Pages project (run once) |
+
+### Pointing the frontend at a different worker
+
+The worker URL defaults to `https://rss-feed-proxy.howgreatfn.workers.dev`. Override it at the command line if your worker lives elsewhere:
+
+```bash
+make deploy-pages PROXY_URL=https://rss-feed-proxy.<your-subdomain>.workers.dev
+```
+
+Leave `PROXY_URL` empty and the frontend falls back to the relative `/api/feed` path, which only works when the page and the proxy share an origin.

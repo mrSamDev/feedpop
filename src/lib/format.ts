@@ -13,7 +13,7 @@ export function formatDate(ts: number | null): string {
 
 export function formatRelative(ts: number | null): string {
   if (ts === null) return "";
-  const diff = Date.now() - ts;
+  const diff = Math.max(0, Date.now() - ts);
   if (diff < MINUTE) return "just now";
   if (diff < HOUR) return `${Math.floor(diff / MINUTE)}m ago`;
   if (diff < DAY) return `${Math.floor(diff / HOUR)}h ago`;

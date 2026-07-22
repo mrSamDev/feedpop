@@ -3,7 +3,7 @@ import { loadFeeds, saveFeeds } from "../src/lib/storage";
 import type { FeedSubscription } from "../src/types";
 
 function makeFeed(url: string, title: string): FeedSubscription {
-  return { id: url, url, title, addedAt: Date.now() };
+  return { id: crypto.randomUUID(), url, title, addedAt: Date.now() };
 }
 
 beforeEach(() => {
@@ -22,9 +22,21 @@ describe("loadFeeds", () => {
     expect(loadFeeds()[0].title).toBe("Feed A");
   });
 
-  it("returns empty array when stored data is corrupt", () => {
+  it("migrates old subscriptions (id === url) to UUID", () => {
+    localStorage.setItem("rss-feeds", JSON.stringify([{ id: "https://a.com/rss", url: "https://a.com/rss", title: "Feed A", addedAt: Date.now() }]));
+    const feeds = loadFeeds();
+    expect(feeds[0].id).not.toBe("https://a.com/rss");
+    expect(feeds[0].id).toMatch(/^[0-9a-f-]+$/);
+  });
+
+  it("throws when stored data is corrupt JSON", () => {
     localStorage.setItem("rss-feeds", "not json");
-    expect(loadFeeds()).toEqual([]);
+    expect(() => loadFeeds()).toThrow();
+  });
+
+  it("throws when stored data is not an array", () => {
+    localStorage.setItem("rss-feeds", JSON.stringify({ foo: 1 }));
+    expect(() => loadFeeds()).toThrow();
   });
 });
 

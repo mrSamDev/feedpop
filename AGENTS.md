@@ -295,6 +295,25 @@ expect(() => createUser({})).toThrow();
 
 Pure functions need fewer mocks. That is usually a sign the design is better.
 
+## React Server State
+
+If project uses React, use TanStack Query for all server state.
+
+No `useEffect` for data fetching. No manual fetch/axios in components. No hand-rolled caching.
+
+Bad:
+
+```tsx
+const [data, setData] = useState(null);
+useEffect(() => { fetch('/api').then(r => r.json()).then(setData); }, []);
+```
+
+Good:
+
+```tsx
+const { data } = useQuery({ queryKey: ['items'], queryFn: () => fetch('/api').then(r => r.json()) });
+```
+
 ## Review Checklist
 
 Before merging:

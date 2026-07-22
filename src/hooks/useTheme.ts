@@ -8,14 +8,10 @@ function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
-/**
- * Manages the light/dark theme. Sets `data-theme` on `<html>`,
- * persists the choice to localStorage, and defaults to the system
- * `prefers-color-scheme` on first visit.
- */
+// Falls back to the system color scheme when no choice is stored.
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 

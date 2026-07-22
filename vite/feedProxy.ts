@@ -2,6 +2,9 @@ import type { Plugin } from "vite";
 import type { ServerResponse } from "node:http";
 import { handleRequest } from "../worker/src/handler";
 
+// Note: imports ServerResponse from node:http, tying this plugin to Node.
+// Fine for Vite — switch to a non-Node dev server would need a different proxy.
+
 type MiddlewareServer = { middlewares: { use: (path: string, handler: (req: unknown, res: ServerResponse) => void) => void } };
 
 // Routes /api/feed?url=... through the same handler the Cloudflare Worker uses,

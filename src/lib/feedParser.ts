@@ -1,14 +1,7 @@
 import type { Feed, Article } from "../types";
 
-/**
- * Browser-native RSS/Atom parser built on the DOM API.
- *
- * `rss-parser` extends Node's `EventEmitter` (via `sax`) and calls
- * `this.removeAllListeners(...)` in its constructor, which does not exist
- * in a Vite browser bundle. Rather than polyfill Node's `events`/`stream`
- * modules, we parse the XML with the browser's native `DOMParser` — RSS and
- * Atom are just XML — and reproduce the same field mapping `rss-parser` uses.
- */
+// rss-parser relies on Node's EventEmitter (via sax) and breaks in a Vite
+// browser bundle, so we parse RSS/Atom with the native DOMParser instead.
 
 type ItemSeed = {
   guid?: string;
@@ -29,10 +22,7 @@ function firstChild(el: Element, localName: string): Element | null {
   return children(el, localName)[0] ?? null;
 }
 
-/**
- * Pick an Atom <link href rel="...">. Mirrors rss-parser's getLink:
- * prefer rel="alternate", otherwise fall back to the first link.
- */
+// Mirrors rss-parser's getLink: prefer rel="alternate", else the first link.
 function atomLink(el: Element): string {
   const links = children(el, "link");
   if (links.length === 0) return "";
@@ -53,15 +43,29 @@ function parseDate(raw: string): number | null {
   return Number.isNaN(ts) ? null : ts;
 }
 
-function articleId(feedUrl: string, item: ItemSeed, index: number): string {
-  const seed = item.guid || item.link || item.title || `${feedUrl}#${index}`;
-  return `${feedUrl}::${seed}`;
+function hash(str: string): string {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) + h) + str.charCodeAt(i);
+  }
+  return (h >>> 0).toString(36);
 }
 
-const ENTITY_EL = document.createElement("textarea");
+function articleId(item: ItemSeed, index: number): string {
+  const seed = item.guid || item.link || item.title || `#${index}`;
+  return hash(seed);
+}
+
+function extractFirstImage(content: string): string | null {
+  if (!content) return null;
+  const doc = new DOMParser().parseFromString(content, "text/html");
+  return doc.querySelector("img")?.getAttribute("src") ?? null;
+}
+
 function decodeEntities(str: string): string {
-  ENTITY_EL.innerHTML = str;
-  return ENTITY_EL.value;
+  const el = document.createElement("textarea");
+  el.innerHTML = str;
+  return el.value;
 }
 
 /** Reproduces rss-parser's stripHtml + getSnippet (entity-decoded, tag-stripped, trimmed). */
@@ -93,12 +97,13 @@ function parseRssItem(item: Element, feedUrl: string, index: number): Article {
   const content = contentEncoded || description || summary || "";
 
   return {
-    id: articleId(feedUrl, { guid, link, title }, index),
+    id: articleId({ guid, link, title }, index),
     feedId: feedUrl,
     title: title || "Untitled",
     link,
     description: stripHtml(description) || summary || "",
     content,
+    imageUrl: extractFirstImage(content),
     author: parseAuthor(author),
     publishedAt: parseDate(pubDate),
   };
@@ -118,13 +123,14 @@ function parseAtomEntry(entry: Element, feedUrl: string, index: number): Article
   const fullContent = content || summary || "";
 
   return {
-    id: articleId(feedUrl, { guid: id, link, title }, index),
+    id: articleId({ guid: id, link, title }, index),
     feedId: feedUrl,
     title: title || "Untitled",
     link,
     // rss-parser derives contentSnippet from item.content (stripped).
     description: stripHtml(content) || summary || "",
     content: fullContent,
+    imageUrl: extractFirstImage(fullContent),
     author: parseAuthor(author),
     publishedAt: parseDate(published),
   };

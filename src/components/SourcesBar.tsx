@@ -38,7 +38,7 @@ export function SourcesBar({ feeds, selectedId, onSelect, onRemove }: SourcesBar
             <button
               onClick={() => onRemove(feed.id)}
               aria-label={`Remove ${feed.title}`}
-              className="shrink-0 rounded-full border border-ink bg-panel-2 px-1 text-[0.6rem] font-bold text-ink opacity-0 transition-opacity hover:text-pink-error group-hover:opacity-100"
+              className="shrink-0 rounded-full border border-ink bg-panel-2 px-1 text-[0.6rem] font-bold text-ink opacity-0 transition-opacity hover:text-pink-error group-hover:opacity-100 group-focus-within:opacity-100"
             >
               ✕
             </button>

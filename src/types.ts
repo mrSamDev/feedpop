@@ -15,6 +15,7 @@ export interface Article {
   link: string;
   description: string;
   content: string;
+  imageUrl: string | null;
   author: string;
   publishedAt: number | null;
 }

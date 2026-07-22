@@ -1,5 +1,5 @@
 import type { Feed } from "../types";
-import { parseFeed } from "./feedParser";
+import { parseFeed } from "../lib/feedParser";
 
 export class FeedFetchError extends Error {
   constructor(message: string) {

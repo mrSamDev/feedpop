@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, formatRelative } from "../src/lib/format";;
+import { formatDate, formatRelative } from "../src/lib/format";
 
 describe("formatDate", () => {
   it("formats a timestamp as a readable date", () => {
@@ -31,5 +31,9 @@ describe("formatRelative", () => {
 
   it("returns empty string for null", () => {
     expect(formatRelative(null)).toBe("");
+  });
+
+  it("clamps future timestamps to 'just now'", () => {
+    expect(formatRelative(Date.now() + 3_600_000)).toBe("just now");
   });
 });
