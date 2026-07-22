@@ -30,9 +30,9 @@ export function App() {
     removeFeedQueries,
   } = useFeeds(subscriptions);
 
-  const addMutation = useAddFeed(subscriptions, {
+  const addMutation = useAddFeed({
     onFeedAdded: addSubscription,
-    onFeedError: (msg) => setAddError(msg),
+    onFeedError: (msg: string) => setAddError(msg),
   });
 
   const { readIds, markRead, unreadCount } = useReadArticles();

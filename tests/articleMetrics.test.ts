@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { estimateReadTime, wordCount, extractImage } from "../src/lib/articleMetrics";
+import { estimateReadTime, wordCount } from "../src/lib/articleMetrics";
 
 describe("wordCount", () => {
   it("counts words in plain text", () => {
@@ -30,17 +30,3 @@ describe("estimateReadTime", () => {
   });
 });
 
-describe("extractImage", () => {
-  it("extracts the first img src from HTML content", () => {
-    const html = '<p>text</p><img src="https://x.com/img.jpg" alt="pic"><p>more</p>';
-    expect(extractImage(html)).toBe("https://x.com/img.jpg");
-  });
-
-  it("returns null when no image exists", () => {
-    expect(extractImage("<p>no image here</p>")).toBeNull();
-  });
-
-  it("returns null for empty content", () => {
-    expect(extractImage("")).toBeNull();
-  });
-});

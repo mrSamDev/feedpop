@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Feed, FeedSubscription } from "../types";
 import { loadFeeds, saveFeeds } from "../lib/storage";
 import { makeSubscription } from "../transformers/feedTransformer";
@@ -36,8 +36,5 @@ export function useSubscriptions() {
     });
   }, []);
 
-  // Stable reference so useFeeds doesn't re-run queries on every render
-  const stableSubscriptions = useMemo(() => subscriptions, [subscriptions]);
-
-  return { subscriptions: stableSubscriptions, addSubscription, removeSubscription, syncTitles };
+  return { subscriptions, addSubscription, removeSubscription, syncTitles };
 }

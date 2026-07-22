@@ -16,8 +16,3 @@ export function estimateReadTime(content: string): number {
   return Math.max(1, Math.ceil(minutes));
 }
 
-export function extractImage(content: string): string | null {
-  if (!content) return null;
-  const doc = new DOMParser().parseFromString(content, "text/html");
-  return doc.querySelector("img")?.getAttribute("src") ?? null;
-}

@@ -30,10 +30,9 @@ export function useReadArticles() {
     });
   }, []);
 
-  const unreadCount = useCallback(
-    (total: number) => total - readIds.size,
-    [readIds],
-  );
+  function unreadCount(total: number) {
+    return total - readIds.size;
+  }
 
   return { readIds, markRead, unreadCount };
 }

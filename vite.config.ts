@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { feedProxyPlugin } from "./vite/feedProxyPlugin";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), feedProxyPlugin()],
+  plugins: [react({ babel: { plugins: ["babel-plugin-react-compiler"] } }), tailwindcss(), feedProxyPlugin()],
   test: {
     globals: true,
     environment: "jsdom",
