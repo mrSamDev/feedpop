@@ -1,5 +1,5 @@
-import { formatRelative } from "../format";
-import type { Theme } from "../theme";
+import { formatRelative } from "../lib/format";
+import type { Theme } from "../lib/theme";
 
 interface HeaderProps {
   unreadCount: number;

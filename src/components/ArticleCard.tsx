@@ -1,6 +1,6 @@
 import type { Article } from "../types";
-import { formatRelative } from "../format";
-import { estimateReadTime, wordCount, extractImage } from "../articleMetrics";
+import { formatRelative } from "../lib/format";
+import { estimateReadTime, wordCount, extractImage } from "../lib/articleMetrics";
 
 interface ArticleCardProps {
   article: Article;

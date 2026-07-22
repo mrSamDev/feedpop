@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Feed, Article, FeedSubscription } from "./types";
-import { loadFeeds, saveFeeds } from "./storage";
-import { fetchFeed, FeedFetchError } from "./feedService";
-import { useTheme } from "./theme";
+import { loadFeeds, saveFeeds } from "./lib/storage";
+import { fetchFeed, FeedFetchError } from "./lib/feedService";
+import { useTheme } from "./lib/theme";
 import { Header } from "./components/Header";
 import { AddFeed } from "./components/AddFeed";
 import { SourcesBar } from "./components/SourcesBar";

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, formatRelative } from "../src/format";
+import { formatDate, formatRelative } from "../src/lib/format";;
 
 describe("formatDate", () => {
   it("formats a timestamp as a readable date", () => {

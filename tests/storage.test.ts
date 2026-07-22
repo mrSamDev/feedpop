@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { loadFeeds, saveFeeds } from "../src/storage";
+import { loadFeeds, saveFeeds } from "../src/lib/storage";
 import type { FeedSubscription } from "../src/types";
 
 function makeFeed(url: string, title: string): FeedSubscription {

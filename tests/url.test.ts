@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isValidFeedUrl, normalizeUrl } from "../src/url";
+import { isValidFeedUrl, normalizeUrl } from "../src/lib/url";;
 
 describe("isValidFeedUrl", () => {
   it("accepts a normal http URL", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchFeed, FeedFetchError } from "../src/feedService";
+import { fetchFeed, FeedFetchError } from "../src/lib/feedService";;
 
 const RSS_XML = `<?xml version="1.0"?>
 <rss version="2.0"><channel>

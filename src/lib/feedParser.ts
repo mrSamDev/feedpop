@@ -1,4 +1,4 @@
-import type { Feed, Article } from "./types";
+import type { Feed, Article } from "../types";
 
 /**
  * Browser-native RSS/Atom parser built on the DOM API.

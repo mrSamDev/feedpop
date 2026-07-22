@@ -1,4 +1,4 @@
-import type { FeedSubscription } from "./types";
+import type { FeedSubscription } from "../types";
 
 const STORAGE_KEY = "rss-feeds";
 

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { normalizeUrl, isValidFeedUrl } from "../url";
+import { normalizeUrl, isValidFeedUrl } from "../lib/url";
 
 interface AddFeedProps {
   isAdding: boolean;

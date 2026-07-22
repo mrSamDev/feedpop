@@ -1,4 +1,4 @@
-import type { Feed } from "./types";
+import type { Feed } from "../types";
 import { parseFeed } from "./feedParser";
 
 export class FeedFetchError extends Error {

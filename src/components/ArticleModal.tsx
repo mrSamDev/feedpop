@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import DOMPurify from "dompurify";
 import type { Article } from "../types";
-import { formatDate } from "../format";
+import { formatDate } from "../lib/format";
 
 interface ArticleModalProps {
   article: Article;
