@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surface + ink — teal-based palette */
+  --color-ink: #004747;          /* main: dark teal — text, borders, structure */
+  --color-panel: #f0f5f5;        /* teal-tinted off-white for header/modal */
+  --color-panel-2: #ffffff;      /* pure white for cards */
+  --color-surface: #e8eeee;      /* light teal-gray for chips/sources */
+  --color-bg: #f5f8f8;           /* page background */
+
+  /* Accent pastels — used sparingly on chips + CTA only */
+  --color-yellow: #f9d84a;
+  --color-pink: #ff7fb4;
+  --color-pink-cta: #ff82b2;
+  --color-pink-cta-deep: #ff5d97;
+  --color-pink-cta-shadow: #ca3e74;
+  --color-pink-error: #972959;
+  --color-melon: #ff9f6e;
+  --color-mint: #92efc5;
+  --color-bluey: #6d8cff;
+
+  /* Type */
+  --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
+  --font-body: "Nunito", ui-rounded, system-ui, sans-serif;
+
+  /* Radii — compact */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-input: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+}
+
+/* Shadow tint — teal-based in light mode, pure black in dark mode */
+:root {
+  --shadow-rgb: 0 71 71;
+  color-scheme: light;
+}
+
+/* Dark theme — simple black and white */
+[data-theme="dark"] {
+  --color-ink: #ffffff;          /* white text + borders */
+  --color-panel: #171717;        /* near-black panel */
+  --color-panel-2: #000000;      /* cards — pure black, white border gives contrast */
+  --color-surface: #111111;      /* chips, sources */
+  --color-bg: #0d0d0d;           /* near-black page background */
+  --color-pink-error: #ff8caa;   /* brighter rose for dark backgrounds */
+  --color-mint: #2d7d6a;         /* muted green for selected/category chips */
+  --shadow-rgb: 0 0 0;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+  }
+}
+
+@layer components {
+  /* Panels — subtle, compact containers */
+  .panel {
+    background-color: var(--color-panel);
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 2px 8px rgb(var(--shadow-rgb) / 0.08);
+  }
+
+  /* Cards — crisp white, minimal shadow, clickable */
+  .card {
+    background-color: var(--color-panel-2);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 3px rgb(var(--shadow-rgb) / 0.06);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgb(var(--shadow-rgb) / 0.12);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 0.82rem;
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+    user-select: none;
+  }
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-refresh {
+    color: #fff;
+    background-image: linear-gradient(180deg, var(--color-pink-cta) 0%, var(--color-pink-cta-deep) 100%);
+    box-shadow: 0 4px 0 var(--color-pink-cta-shadow);
+  }
+  .btn-refresh:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .btn-refresh:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--color-pink-cta-shadow);
+  }
+
+  .btn-secondary {
+    color: var(--color-ink);
+    background-color: var(--color-panel-2);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .btn-secondary:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-open {
+    color: var(--color-ink);
+    background-color: var(--color-yellow);
+  }
+  .btn-open:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .btn-open:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  /* White on bright yellow has poor contrast — use fixed black in dark mode */
+  [data-theme="dark"] .btn-open {
+    color: #000000;
+  }
+
+  /* Chips — compact */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 800;
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-pill);
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+  .chip-article { background-color: var(--color-pink); color: #fff; }
+  .chip-video { background-color: var(--color-bluey); color: #fff; }
+  .chip-neutral { background-color: var(--color-surface); color: var(--color-ink); }
+  .chip-category { background-color: var(--color-mint); color: var(--color-ink); }
+
+  /* Stat pills — inline header stats */
+  .stat-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-pill);
+    padding: 4px 10px;
+  }
+
+  /* Sources container — solid border, compact strip */
+  .sources-container {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Text input — flat, clean */
+  .text-input {
+    background-color: var(--color-panel-2);
+    color: var(--color-ink);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-input);
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .text-input::placeholder {
+    color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+  }
+  .text-input:focus {
+    outline: 2px solid var(--color-pink-cta);
+    outline-offset: 1px;
+  }
+
+  /* Fresh dot — compact indicator */
+  .fresh-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-yellow);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-pill);
+    flex-shrink: 0;
+  }
+}
+
+@layer utilities {
+  .text-ink-60 { color: color-mix(in srgb, var(--color-ink) 60%, transparent); }
+  .text-ink-80 { color: color-mix(in srgb, var(--color-ink) 80%, transparent); }
+  .text-ink-40 { color: color-mix(in srgb, var(--color-ink) 40%, transparent); }
+  .spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .fade-in { animation: fadeIn 0.15s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
