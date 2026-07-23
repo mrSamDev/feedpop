@@ -47,7 +47,7 @@ export async function fetchFeed(
 
   let feed: Feed;
   try {
-    feed = await parseFeed(xml, feedUrl);
+    feed = parseFeed(xml, feedUrl);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not parse the feed";
     throw new FeedFetchError(`This doesn't look like a valid RSS or Atom feed: ${message}`);

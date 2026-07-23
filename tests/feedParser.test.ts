@@ -43,10 +43,10 @@ const ATOM_SAMPLE = `<?xml version="1.0" encoding="UTF-8"?>
 </feed>`;
 
 describe("parseFeed - RSS 2.0", () => {
-  let result: Awaited<ReturnType<typeof parseFeed>>;
+  let result: ReturnType<typeof parseFeed>;
 
-  beforeAll(async () => {
-    result = await parseFeed(RSS2_SAMPLE, "https://blog.example.com/rss");
+  beforeAll(() => {
+    result = parseFeed(RSS2_SAMPLE, "https://blog.example.com/rss");
   });
 
   it("extracts channel metadata", () => {
@@ -84,8 +84,8 @@ describe("parseFeed - RSS 2.0", () => {
 });
 
 describe("parseFeed - Atom", () => {
-  it("parses entry fields", async () => {
-    const result = await parseFeed(ATOM_SAMPLE, "https://atom.example.com/feed");
+  it("parses entry fields", () => {
+    const result = parseFeed(ATOM_SAMPLE, "https://atom.example.com/feed");
     expect(result.title).toBe("Atom Blog");
     expect(result.link).toBe("https://atom.example.com");
     expect(result.description).toBe("An atom feed");
@@ -100,31 +100,31 @@ describe("parseFeed - Atom", () => {
 });
 
 describe("parseFeed - error cases", () => {
-  it("throws on non-XML input", async () => {
-    await expect(parseFeed("not xml at all", "https://example.com/feed")).rejects.toThrow();
+  it("throws on non-XML input", () => {
+    expect(() => parseFeed("not xml at all", "https://example.com/feed")).toThrow();
   });
 
-  it("throws on empty input", async () => {
-    await expect(parseFeed("", "https://example.com/feed")).rejects.toThrow();
+  it("throws on empty input", () => {
+    expect(() => parseFeed("", "https://example.com/feed")).toThrow();
   });
 
-  it("handles items with missing dates gracefully", async () => {
+  it("handles items with missing dates gracefully", () => {
     const xml = `<?xml version="1.0"?>
       <rss version="2.0"><channel>
         <title>No Date Feed</title><link>https://x.com</link><description>d</description>
         <item><title>No Date</title><link>https://x.com/1</link></item>
       </channel></rss>`;
-    const result = await parseFeed(xml, "https://x.com/rss");
+    const result = parseFeed(xml, "https://x.com/rss");
     expect(result.articles[0].publishedAt).toBeNull();
   });
 
-  it("handles CDATA in title", async () => {
+  it("handles CDATA in title", () => {
     const xml = `<?xml version="1.0"?>
       <rss version="2.0"><channel>
         <title><![CDATA[My Special Feed]]></title><link>https://x.com</link><description>d</description>
         <item><title><![CDATA[Hello & Goodbye]]></title><link>https://x.com/1</link></item>
       </channel></rss>`;
-    const result = await parseFeed(xml, "https://x.com/rss");
+    const result = parseFeed(xml, "https://x.com/rss");
     expect(result.title).toBe("My Special Feed");
     expect(result.articles[0].title).toBe("Hello & Goodbye");
   });

@@ -13,7 +13,6 @@ interface ArticleGridProps {
 export function ArticleGrid({ articles, onOpen, readIds }: ArticleGridProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  // Reset pagination when articles change (e.g., feed filter)
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [articles.length]);

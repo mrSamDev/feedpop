@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surface + ink — teal-based palette */
+  --color-ink: #004747;          /* main: dark teal — text, borders, structure */
+  --color-panel: #f0f5f5;        /* teal-tinted off-white for header/modal */
+  --color-panel-2: #ffffff;      /* pure white for cards */
+  --color-surface: #e8eeee;      /* light teal-gray for chips/sources */
+  --color-bg: #f5f8f8;           /* page background */
+
+  /* Accent pastels — used sparingly on chips + CTA only */
+  --color-yellow: #f9d84a;
+  --color-pink: #ff7fb4;
+  --color-pink-cta: #ff82b2;
+  --color-pink-cta-deep: #ff5d97;
+  --color-pink-cta-shadow: #ca3e74;
+  --color-pink-error: #972959;
+  --color-melon: #ff9f6e;
+  --color-mint: #92efc5;
+  --color-bluey: #6d8cff;
+
+  /* Type */
+  --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
+  --font-body: "Nunito", ui-rounded, system-ui, sans-serif;
+
+  /* Radii — compact */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-input: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+}
+
+/* Shadow tint — teal-based in light mode, pure black in dark mode */
+:root {
+  --shadow-rgb: 0 71 71;
+  color-scheme: light;
+}
+
+/* Dark theme — simple black and white */
+[data-theme="dark"] {
+  --color-ink: #ffffff;          /* white text + borders */
+  --color-panel: #171717;        /* near-black panel */
+  --color-panel-2: #000000;      /* cards — pure black, white border gives contrast */
+  --color-surface: #111111;      /* chips, sources */
+  --color-bg: #0d0d0d;           /* near-black page background */
+  --color-pink-error: #ff8caa;   /* brighter rose for dark backgrounds */
+  --color-mint: #2d7d6a;         /* muted green for selected/category chips */
+  --shadow-rgb: 0 0 0;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+  }
+}

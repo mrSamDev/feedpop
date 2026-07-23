@@ -56,19 +56,7 @@ describe("useSubscriptions", () => {
     expect(result.current.subscriptions).toHaveLength(0);
   });
 
-  it("syncs titles from fetched feeds", () => {
-    const { result } = renderHook(() => useSubscriptions());
-    const feed = sampleFeed();
-
-    act(() => result.current.addSubscription(feed));
-
-    const updatedFeed = sampleFeed({ title: "Updated Title" });
-    act(() => result.current.syncTitles([updatedFeed]));
-
-    expect(result.current.subscriptions[0].title).toBe("Updated Title");
-  });
-
-  it("persists subscriptions to localStorage", () => {
+  it("persists subscriptions to localStorage on add", () => {
     const { result } = renderHook(() => useSubscriptions());
     const feed = sampleFeed();
 
@@ -77,6 +65,18 @@ describe("useSubscriptions", () => {
     const stored = JSON.parse(localStorage.getItem("rss-feeds") ?? "[]");
     expect(stored).toHaveLength(1);
     expect(stored[0].url).toBe(feed.url);
+  });
+
+  it("persists removal to localStorage", () => {
+    const { result } = renderHook(() => useSubscriptions());
+    const feed = sampleFeed();
+
+    act(() => result.current.addSubscription(feed));
+    const subId = result.current.subscriptions[0].id;
+    act(() => result.current.removeSubscription(subId));
+
+    const stored = JSON.parse(localStorage.getItem("rss-feeds") ?? "[]");
+    expect(stored).toHaveLength(0);
   });
 
   it("loads persisted subscriptions on mount", () => {

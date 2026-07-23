@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from "vitest";
 import { handleRequest } from "../worker/src/handler";
 import type { Env } from "../worker/src/index";

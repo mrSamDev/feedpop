@@ -3,11 +3,27 @@ import type { DailySummary } from "../types";
 interface DailyBriefProps {
   summary: DailySummary | null;
   isGenerating: boolean;
+  error: string | null;
   onGenerate: () => void;
   onDismiss: () => void;
 }
 
-export function DailyBrief({ summary, isGenerating, onGenerate, onDismiss }: DailyBriefProps) {
+export function DailyBrief({ summary, isGenerating, error, onGenerate, onDismiss }: DailyBriefProps) {
+  if (error) {
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-pink-error/30 bg-pink-error/5 px-4 py-2.5 text-sm font-bold text-pink-error">
+        <span>{error}</span>
+        <button
+          onClick={onDismiss}
+          aria-label="Dismiss error"
+          className="text-pink-error hover:opacity-70"
+        >
+          ✕
+        </button>
+      </div>
+    );
+  }
+
   if (summary) {
     return (
       <div className="panel fade-in flex flex-col gap-3 px-5 py-4">

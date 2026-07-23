@@ -1,7 +1,38 @@
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchFeed } from "../api/feedApi";
-import { flattenArticles, remapFeed } from "../transformers/feedTransformer";
-import type { Feed, FeedSubscription } from "../types";
+import type { Feed, FeedSubscription, Article } from "../types";
+
+/** Remap a fetched feed's IDs to use the subscription's stable UUID. */
+function remapFeed(feed: Feed, subId: string): Feed {
+  return {
+    ...feed,
+    id: subId,
+    articles: feed.articles.map((a) => ({
+      ...a,
+      feedId: subId,
+    })),
+  };
+}
+
+function sortByDate(articles: Article[]): Article[] {
+  return [...articles].sort((a, b) => (b.publishedAt ?? 0) - (a.publishedAt ?? 0));
+}
+
+/** Dedupe by link+title hash, keep first occurrence (most recent after sort). */
+function dedupeArticles(articles: Article[]): Article[] {
+  const seen = new Set<string>();
+  return articles.filter((a) => {
+    if (!a.link && !a.title) return true;
+    const key = `${a.link}::${a.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function flattenArticles(feeds: Feed[]): Article[] {
+  return dedupeArticles(sortByDate(feeds.flatMap((f) => f.articles)));
+}
 
 export function useFeeds(subscriptions: FeedSubscription[]) {
   const queryClient = useQueryClient();

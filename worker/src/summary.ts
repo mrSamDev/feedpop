@@ -80,7 +80,9 @@ async function fetchFeed(
     }
 
     return items;
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Failed to fetch feed ${url}: ${message}`);
     return [];
   }
 }

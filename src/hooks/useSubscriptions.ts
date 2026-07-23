@@ -1,40 +1,35 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import type { Feed, FeedSubscription } from "../types";
 import { loadFeeds, saveFeeds } from "../lib/storage";
-import { makeSubscription } from "../transformers/feedTransformer";
+
+function makeSubscription(feed: Feed): FeedSubscription {
+  return {
+    id: crypto.randomUUID(),
+    url: feed.url,
+    title: feed.title,
+    addedAt: Date.now(),
+  };
+}
 
 export function useSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<FeedSubscription[]>(() => loadFeeds());
 
-  useEffect(() => {
-    saveFeeds(subscriptions);
-  }, [subscriptions]);
-
   function addSubscription(feed: Feed) {
-    setSubscriptions((prev) =>
-      prev.some((s) => s.url === feed.url) ? prev : [...prev, makeSubscription(feed)],
-    );
+    setSubscriptions((prev) => {
+      if (prev.some((s) => s.url === feed.url)) return prev;
+      const next = [...prev, makeSubscription(feed)];
+      saveFeeds(next);
+      return next;
+    });
   }
 
   function removeSubscription(id: string) {
-    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
+    setSubscriptions((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      saveFeeds(next);
+      return next;
+    });
   }
 
-  const syncTitles = useCallback((feeds: Feed[]) => {
-    if (feeds.length === 0) return;
-    setSubscriptions((prev) => {
-      let changed = false;
-      const next = prev.map((s) => {
-        const feed = feeds.find((f) => f.url === s.url);
-        if (feed && feed.title !== s.title) {
-          changed = true;
-          return { ...s, title: feed.title };
-        }
-        return s;
-      });
-      return changed ? next : prev;
-    });
-  }, []);
-
-  return { subscriptions, addSubscription, removeSubscription, syncTitles };
+  return { subscriptions, addSubscription, removeSubscription };
 }

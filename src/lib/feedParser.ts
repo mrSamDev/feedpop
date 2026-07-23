@@ -149,7 +149,7 @@ function parseAtom(feedEl: Element, feedUrl: string): Feed {
   };
 }
 
-export async function parseFeed(xml: string, feedUrl: string): Promise<Feed> {
+export function parseFeed(xml: string, feedUrl: string): Feed {
   if (!xml.trim()) throw new Error("Feed is empty");
 
   const doc = new DOMParser().parseFromString(xml, "text/xml");

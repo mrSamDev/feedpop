@@ -8,6 +8,8 @@ import type { Env } from "../worker/src/index";
 
 type MiddlewareServer = { middlewares: { use: (path: string, handler: (req: unknown, res: ServerResponse) => void) => void } };
 
+type NodeReq = { url?: string; method?: string; headers: Record<string, string | string[] | undefined>; on?: (event: string, cb: (chunk: string) => void) => void };
+
 function makeDevEnv(): Env {
   const today = new Date().toISOString().slice(0, 10);
   const devSummary = JSON.stringify({
@@ -32,51 +34,39 @@ function makeDevEnv(): Env {
   };
 }
 
+async function proxyRequest(mountPath: string, req: unknown, res: ServerResponse, env: Env) {
+  const nodeReq = req as NodeReq;
+  const host = nodeReq.headers.host ?? "localhost";
+  const fullUrl = `http://${host}${mountPath}${nodeReq.url ?? ""}`;
+
+  let body: string | undefined;
+  if (nodeReq.method === "POST") {
+    body = await new Promise<string>((resolve) => {
+      let data = "";
+      nodeReq.on?.("data", (chunk: string) => { data += chunk; });
+      nodeReq.on?.("end", () => resolve(data));
+    });
+  }
+
+  const request = new Request(fullUrl, {
+    method: nodeReq.method ?? "GET",
+    headers: Object.fromEntries(
+      Object.entries(nodeReq.headers).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v ?? ""]),
+    ),
+    body,
+  });
+
+  const response = await handleRequest(request, env);
+
+  res.statusCode = response.status;
+  response.headers.forEach((value, key) => res.setHeader(key, value));
+  res.end(await response.text());
+}
+
 function attachProxy(server: MiddlewareServer) {
   const devEnv = makeDevEnv();
-
-  server.middlewares.use("/api/feed", async (req, res) => {
-    const nodeReq = req as { url?: string; method?: string; headers: Record<string, string | string[] | undefined> };
-    const host = nodeReq.headers.host ?? "localhost";
-    // connect strips mount path from req.url, add it back
-    const fullUrl = `http://${host}/api/feed${nodeReq.url ?? ""}`;
-    const request = new Request(fullUrl, { method: nodeReq.method ?? "GET" });
-    const response = await handleRequest(request, devEnv);
-
-    res.statusCode = response.status;
-    response.headers.forEach((value, key) => res.setHeader(key, value));
-    res.end(await response.text());
-  });
-
-  server.middlewares.use("/api/summary", async (req, res) => {
-    const nodeReq = req as { url?: string; method?: string; headers: Record<string, string | string[] | undefined>; on: (event: string, cb: (chunk: string) => void) => void };
-    const host = nodeReq.headers.host ?? "localhost";
-    // connect strips mount path from req.url, add it back
-    const fullUrl = `http://${host}/api/summary${nodeReq.url ?? ""}`;
-
-    let body = "";
-    if (nodeReq.method === "POST") {
-      body = await new Promise<string>((resolve) => {
-        let data = "";
-        nodeReq.on("data", (chunk: string) => { data += chunk; });
-        nodeReq.on("end", () => resolve(data));
-      });
-    }
-
-    const request = new Request(fullUrl, {
-      method: nodeReq.method ?? "GET",
-      headers: Object.fromEntries(
-        Object.entries(nodeReq.headers).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v ?? ""]),
-      ),
-      body: nodeReq.method === "POST" ? body : undefined,
-    });
-
-    const response = await handleRequest(request, devEnv);
-
-    res.statusCode = response.status;
-    response.headers.forEach((value, key) => res.setHeader(key, value));
-    res.end(await response.text());
-  });
+  server.middlewares.use("/api/feed", (req, res) => proxyRequest("/api/feed", req, res, devEnv));
+  server.middlewares.use("/api/summary", (req, res) => proxyRequest("/api/summary", req, res, devEnv));
 }
 
 export function feedProxyPlugin(): Plugin {

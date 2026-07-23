@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 
 const STORAGE_KEY = "feedpop-read";
 
@@ -20,16 +20,12 @@ function saveReadSet(ids: Set<string>): void {
 export function useReadArticles() {
   const [readIds, setReadIds] = useState<Set<string>>(loadReadSet);
 
-  // Persist to localStorage whenever readIds changes
-  useEffect(() => {
-    saveReadSet(readIds);
-  }, [readIds]);
-
   const markRead = useCallback((id: string) => {
     setReadIds((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev);
       next.add(id);
+      saveReadSet(next);
       return next;
     });
   }, []);

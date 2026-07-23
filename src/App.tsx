@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Article } from "./types";
 import { useTheme } from "./hooks/useTheme";
 import { useSubscriptions } from "./hooks/useSubscriptions";
@@ -17,7 +17,7 @@ import { ArticleModal } from "./components/ArticleModal";
 
 export function App() {
   const { theme, toggleTheme } = useTheme();
-  const { subscriptions, addSubscription, removeSubscription, syncTitles } = useSubscriptions();
+  const { subscriptions, addSubscription, removeSubscription } = useSubscriptions();
   const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
@@ -38,12 +38,13 @@ export function App() {
   });
 
   const { readIds, markRead, unreadCount } = useReadArticles();
-  const { summary: dailySummary, isGenerating: isSummaryGenerating, generate: generateSummary, dismiss: dismissSummary } = useDailySummary();
+  const { summary: dailySummary, isGenerating: isSummaryGenerating, error: summaryError, generate: generateSummary, dismiss: dismissSummary } = useDailySummary();
 
-  // Sync subscription titles with fetched feed titles
-  useEffect(() => {
-    syncTitles(feeds);
-  }, [feeds, syncTitles]);
+  // Merge fetched feed titles into subscriptions for display
+  const displaySubscriptions = subscriptions.map((sub) => {
+    const feed = feeds.find((f) => f.url === sub.url);
+    return feed ? { ...sub, title: feed.title } : sub;
+  });
 
   const visibleArticles = selectedFeedId
     ? allArticles.filter((a) => a.feedId === selectedFeedId)
@@ -68,7 +69,7 @@ export function App() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 lg:flex-row">
           <aside className="order-2 lg:order-1 lg:w-56 lg:shrink-0">
             <SourcesBar
-              feeds={subscriptions}
+              feeds={displaySubscriptions}
               selectedId={selectedFeedId}
               onSelect={setSelectedFeedId}
               onRemove={handleRemoveFeed}
@@ -129,6 +130,7 @@ export function App() {
               <DailyBrief
                 summary={dailySummary}
                 isGenerating={false}
+                error={null}
                 onGenerate={() => {}}
                 onDismiss={dismissSummary}
               />
@@ -138,8 +140,9 @@ export function App() {
               <DailyBrief
                 summary={null}
                 isGenerating={isSummaryGenerating}
+                error={summaryError}
                 onGenerate={() => generateSummary(subscriptions.map((s) => s.url))}
-                onDismiss={() => {}}
+                onDismiss={dismissSummary}
               />
             )}
 
