@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { makeSubscription, extractErrorMessage, sortByDate, flattenArticles } from "../src/transformers/feedTransformer";
-import { FeedFetchError } from "../src/api/feedApi";
+import { makeSubscription, sortByDate, flattenArticles } from "../src/transformers/feedTransformer";
 import type { Feed, Article } from "../src/types";
 
 function sampleFeed(overrides?: Partial<Feed>): Feed {
@@ -48,23 +47,6 @@ describe("makeSubscription", () => {
     expect(sub.url).toBe(feed.url);
     expect(sub.title).toBe(feed.title);
     expect(sub.addedAt).toBeGreaterThan(0);
-  });
-});
-
-describe("extractErrorMessage", () => {
-  it("returns FeedFetchError message when error is FeedFetchError", () => {
-    const error = new FeedFetchError("Failed to fetch feed: network down");
-    expect(extractErrorMessage(error, "fallback")).toBe("Failed to fetch feed: network down");
-  });
-
-  it("returns fallback for non-FeedFetchError errors", () => {
-    expect(extractErrorMessage(new Error("generic"), "fallback")).toBe("fallback");
-  });
-
-  it("returns fallback for non-Error values", () => {
-    expect(extractErrorMessage("string error", "fallback")).toBe("fallback");
-    expect(extractErrorMessage(null, "fallback")).toBe("fallback");
-    expect(extractErrorMessage(undefined, "fallback")).toBe("fallback");
   });
 });
 

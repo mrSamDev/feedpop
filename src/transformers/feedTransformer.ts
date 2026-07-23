@@ -1,5 +1,4 @@
 import type { Feed, Article, FeedSubscription } from "../types";
-import { FeedFetchError } from "../api/feedApi";
 
 export function makeSubscription(feed: Feed): FeedSubscription {
   return {
@@ -20,10 +19,6 @@ export function remapFeed(feed: Feed, subId: string): Feed {
       feedId: subId,
     })),
   };
-}
-
-export function extractErrorMessage(e: unknown, fallback: string): string {
-  return e instanceof FeedFetchError ? e.message : fallback;
 }
 
 export function sortByDate(articles: Article[]): Article[] {

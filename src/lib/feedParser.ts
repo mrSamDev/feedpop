@@ -1,4 +1,5 @@
 import type { Feed, Article } from "../types";
+import { stripHtmlToSnippet, extractFirstImage } from "./htmlUtils";
 
 // rss-parser relies on Node's EventEmitter (via sax) and breaks in a Vite
 // browser bundle, so we parse RSS/Atom with the native DOMParser instead.
@@ -56,29 +57,6 @@ function articleId(item: ItemSeed, index: number): string {
   return hash(seed);
 }
 
-function extractFirstImage(content: string): string | null {
-  if (!content) return null;
-  const doc = new DOMParser().parseFromString(content, "text/html");
-  return doc.querySelector("img")?.getAttribute("src") ?? null;
-}
-
-function decodeEntities(str: string): string {
-  const el = document.createElement("textarea");
-  el.innerHTML = str;
-  return el.value;
-}
-
-/** Reproduces rss-parser's stripHtml + getSnippet (entity-decoded, tag-stripped, trimmed). */
-function stripHtml(str: string): string {
-  if (!str) return "";
-  const withBreaks = str.replace(
-    /([^\n])<\/?(h|br|p|ul|ol|li|blockquote|section|table|tr|div)(?:.|\n)*?>([^\n])/gm,
-    "$1\n$3",
-  );
-  const stripped = withBreaks.replace(/<(?:.|\n)*?>/gm, "");
-  return decodeEntities(stripped).trim();
-}
-
 function parseRssItem(item: Element, feedUrl: string, index: number): Article {
   const title = text(firstChild(item, "title"));
   const link = text(firstChild(item, "link"));
@@ -101,7 +79,7 @@ function parseRssItem(item: Element, feedUrl: string, index: number): Article {
     feedId: feedUrl,
     title: title || "Untitled",
     link,
-    description: stripHtml(description) || summary || "",
+    description: stripHtmlToSnippet(description) || summary || "",
     content,
     imageUrl: extractFirstImage(content),
     author: parseAuthor(author),
@@ -128,7 +106,7 @@ function parseAtomEntry(entry: Element, feedUrl: string, index: number): Article
     title: title || "Untitled",
     link,
     // rss-parser derives contentSnippet from item.content (stripped).
-    description: stripHtml(content) || summary || "",
+    description: stripHtmlToSnippet(content) || summary || "",
     content: fullContent,
     imageUrl: extractFirstImage(fullContent),
     author: parseAuthor(author),

@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { fetchFeed } from "../api/feedApi";
-import { extractErrorMessage } from "../transformers/feedTransformer";
+import { fetchFeed, extractErrorMessage } from "../api/feedApi";
 import type { Feed } from "../types";
 
 interface UseAddFeedCallbacks {

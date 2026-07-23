@@ -8,6 +8,10 @@ export class FeedFetchError extends Error {
   }
 }
 
+export function extractErrorMessage(e: unknown, fallback: string): string {
+  return e instanceof FeedFetchError ? e.message : fallback;
+}
+
 function proxyUrl(): string {
   return import.meta.env.VITE_PROXY_URL ?? "/api/feed";
 }

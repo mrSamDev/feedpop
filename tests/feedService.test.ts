@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchFeed, FeedFetchError } from "../src/api/feedApi";
+import { fetchFeed, FeedFetchError, extractErrorMessage } from "../src/api/feedApi";
 
 const RSS_XML = `<?xml version="1.0"?>
 <rss version="2.0"><channel>
@@ -75,5 +75,22 @@ describe("fetchFeed - network failure", () => {
 describe("fetchFeed - parse failure", () => {
   it("throws FeedFetchError when content is not valid XML", async () => {
     await expect(fetchFeed("https://x.com/rss", mockOk("not xml"))).rejects.toThrow(FeedFetchError);
+  });
+});
+
+describe("extractErrorMessage", () => {
+  it("returns FeedFetchError message when error is FeedFetchError", () => {
+    const error = new FeedFetchError("Failed to fetch feed: network down");
+    expect(extractErrorMessage(error, "fallback")).toBe("Failed to fetch feed: network down");
+  });
+
+  it("returns fallback for non-FeedFetchError errors", () => {
+    expect(extractErrorMessage(new Error("generic"), "fallback")).toBe("fallback");
+  });
+
+  it("returns fallback for non-Error values", () => {
+    expect(extractErrorMessage("string error", "fallback")).toBe("fallback");
+    expect(extractErrorMessage(null, "fallback")).toBe("fallback");
+    expect(extractErrorMessage(undefined, "fallback")).toBe("fallback");
   });
 });

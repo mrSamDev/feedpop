@@ -5,7 +5,7 @@ import { useSubscriptions } from "./hooks/useSubscriptions";
 import { useFeeds } from "./hooks/useFeeds";
 import { useAddFeed } from "./hooks/useAddFeed";
 import { useReadArticles } from "./hooks/useReadArticles";
-import { extractErrorMessage } from "./transformers/feedTransformer";
+import { extractErrorMessage } from "./api/feedApi";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header } from "./components/Header";
 import { AddFeed } from "./components/AddFeed";
