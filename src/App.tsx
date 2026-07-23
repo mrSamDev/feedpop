@@ -6,6 +6,8 @@ import { useFeeds } from "./hooks/useFeeds";
 import { useAddFeed } from "./hooks/useAddFeed";
 import { useReadArticles } from "./hooks/useReadArticles";
 import { extractErrorMessage } from "./api/feedApi";
+import { useDailySummary } from "./hooks/useDailySummary";
+import { DailyBrief } from "./components/DailyBrief";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header } from "./components/Header";
 import { AddFeed } from "./components/AddFeed";
@@ -36,6 +38,7 @@ export function App() {
   });
 
   const { readIds, markRead, unreadCount } = useReadArticles();
+  const { summary: dailySummary, isGenerating: isSummaryGenerating, generate: generateSummary, dismiss: dismissSummary } = useDailySummary();
 
   // Sync subscription titles with fetched feed titles
   useEffect(() => {
@@ -121,6 +124,24 @@ export function App() {
             )}
 
             <AddFeed isAdding={addMutation.isPending} onAdd={addMutation.mutate} />
+
+            {dailySummary !== null && (
+              <DailyBrief
+                summary={dailySummary}
+                isGenerating={false}
+                onGenerate={() => {}}
+                onDismiss={dismissSummary}
+              />
+            )}
+
+            {dailySummary === null && subscriptions.length > 0 && (
+              <DailyBrief
+                summary={null}
+                isGenerating={isSummaryGenerating}
+                onGenerate={() => generateSummary(subscriptions.map((s) => s.url))}
+                onDismiss={() => {}}
+              />
+            )}
 
             {isLoading && (
               <div className="panel px-5 py-10 text-center">

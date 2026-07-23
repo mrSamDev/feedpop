@@ -6,7 +6,7 @@ function makeRequest(url: string, method = "GET"): Request {
   return new Request(url, { method });
 }
 
-function mockEnv(): Env {
+function mockEnv(overrides?: Partial<Env>): Env {
   return {
     SUMMARY_KV: {
       get: vi.fn(),
@@ -14,8 +14,9 @@ function mockEnv(): Env {
       delete: vi.fn(),
       list: vi.fn().mockResolvedValue({ keys: [] }),
     } as unknown as KVNamespace,
-    OPENAI_API_KEY: "test-key",
+    OPENAI_API_KEY: "sk-test",
     AUTH_TOKEN: "test-token",
+    ...overrides,
   };
 }
 
@@ -37,7 +38,7 @@ describe("handleRequest - CORS preflight", () => {
 });
 
 describe("handleRequest - validation", () => {
-  it("rejects non-GET methods on feed paths", async () => {
+  it("rejects non-GET methods on feed proxy", async () => {
     const res = await handleRequest(makeRequest("https://proxy.dev/api/feed?url=x", "POST"), mockEnv());
     expect(res.status).toBe(405);
   });
@@ -99,5 +100,74 @@ describe("handleRequest - errors", () => {
     expect(res.status).toBe(502);
     const body = (await res.json()) as { error: string };
     expect(body.error).toMatch(/network down/);
+  });
+});
+
+describe("handleRequest - summary endpoints", () => {
+  it("returns 401 on POST /api/summary without auth", async () => {
+    const res = await handleRequest(
+      new Request("https://proxy.dev/api/summary", { method: "POST", body: JSON.stringify({ feeds: [] }), headers: { "Content-Type": "application/json" } }),
+      mockEnv(),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 400 on POST /api/summary with empty feeds", async () => {
+    const res = await handleRequest(
+      new Request("https://proxy.dev/api/summary", {
+        method: "POST",
+        body: JSON.stringify({ feeds: [] }),
+        headers: { "Content-Type": "application/json", Authorization: "Bearer test-token" },
+      }),
+      mockEnv(),
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toMatch(/feeds/i);
+  });
+
+  it("returns 404 on GET /api/summary when no cached summary", async () => {
+    const kv = { get: vi.fn().mockResolvedValue(null) } as unknown as KVNamespace;
+    const res = await handleRequest(
+      new Request("https://proxy.dev/api/summary"),
+      mockEnv({ SUMMARY_KV: kv }),
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 404 on unknown path", async () => {
+    const res = await handleRequest(new Request("https://proxy.dev/api/unknown"), mockEnv());
+    expect(res.status).toBe(404);
+  });
+
+  it("normalizes trailing slash on /api/feed/", async () => {
+    const fetchImpl = mockFetch("<rss>ok</rss>");
+    const res = await handleRequest(
+      new Request("https://proxy.dev/api/feed/?url=https://hnrss.org/frontpage"),
+      mockEnv(),
+      fetchImpl,
+    );
+    expect(res.status).toBe(200);
+  });
+
+  it("normalizes trailing slash on /api/summary/", async () => {
+    const kv = { get: vi.fn().mockResolvedValue(null) } as unknown as KVNamespace;
+    const res = await handleRequest(
+      new Request("https://proxy.dev/api/summary/"),
+      mockEnv({ SUMMARY_KV: kv }),
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 200 on GET /api/summary when cached summary exists", async () => {
+    const cached = JSON.stringify({ date: "2026-07-23", summary: "test", topics: ["a"], generatedAt: 1 });
+    const kv = { get: vi.fn().mockResolvedValue(cached) } as unknown as KVNamespace;
+    const res = await handleRequest(
+      new Request("https://proxy.dev/api/summary"),
+      mockEnv({ SUMMARY_KV: kv }),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { summary: string };
+    expect(body.summary).toBe("test");
   });
 });

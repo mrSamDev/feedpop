@@ -26,3 +26,10 @@ export interface FeedSubscription {
   title: string;
   addedAt: number;
 }
+
+export interface DailySummary {
+  date: string;
+  summary: string;
+  topics: string[];
+  generatedAt: number;
+}
