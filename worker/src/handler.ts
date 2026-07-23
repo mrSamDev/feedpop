@@ -1,10 +1,13 @@
+import type { Env } from "./index";
+import { generateSummary, getCachedSummary } from "./summary";
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-const FEED_TIMEOUT_MS = 10000;
+const FEED_TIMEOUT_MS = 30000;
 const CACHE_TTL_S = 900; // 15 min
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -24,18 +27,16 @@ function isValidFeedUrl(input: string): boolean {
   }
 }
 
-export async function handleRequest(
+function isAuthorized(request: Request, env: Env): boolean {
+  const auth = request.headers.get("Authorization");
+  if (!auth || !env.AUTH_TOKEN) return false;
+  return auth === `Bearer ${env.AUTH_TOKEN}`;
+}
+
+async function handleFeedProxy(
   request: Request,
-  fetchImpl: typeof fetch = fetch,
+  fetchImpl: typeof fetch,
 ): Promise<Response> {
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
-  }
-
-  if (request.method !== "GET") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
-  }
-
   const feedUrl = new URL(request.url).searchParams.get("url");
   if (!feedUrl) {
     return jsonResponse({ error: "Missing 'url' query parameter" }, 400);
@@ -123,7 +124,6 @@ export async function handleRequest(
       const cache = (caches as unknown as { default: Cache } | undefined)?.default;
       if (cache) {
         const cacheResponse = finalResponse.clone();
-        // Set Cache-Control so Cloudflare respects the TTL
         const cacheHeaders = new Headers(cacheResponse.headers);
         cacheHeaders.set("Cache-Control", `public, s-maxage=${CACHE_TTL_S}`);
         await cache.put(cacheKey, new Response(cacheResponse.body, {
@@ -145,4 +145,74 @@ export async function handleRequest(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function handlePostSummary(
+  request: Request,
+  env: Env,
+  fetchImpl: typeof fetch,
+): Promise<Response> {
+  if (!isAuthorized(request, env)) {
+    return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
+  let body: { feeds?: string[] };
+  try {
+    body = (await request.json()) as { feeds?: string[] };
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, 400);
+  }
+
+  if (!body.feeds || !Array.isArray(body.feeds) || body.feeds.length === 0) {
+    return jsonResponse({ error: "Missing or empty 'feeds' array" }, 400);
+  }
+
+  try {
+    const result = await generateSummary(body.feeds, env.OPENAI_API_KEY, env.SUMMARY_KV, fetchImpl);
+    return jsonResponse(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return jsonResponse({ error: `Failed to generate summary: ${message}` }, 502);
+  }
+}
+
+async function handleGetSummary(
+  _request: Request,
+  env: Env,
+): Promise<Response> {
+  const result = await getCachedSummary(env.SUMMARY_KV);
+  if (!result) {
+    return jsonResponse({ error: "No summary for today" }, 404);
+  }
+  return jsonResponse(result);
+}
+
+export async function handleRequest(
+  request: Request,
+  env: Env,
+  fetchImpl: typeof fetch = fetch,
+): Promise<Response> {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
+  const url = new URL(request.url);
+  const path = url.pathname.replace(/\/$/, "");
+
+  // Route: POST /api/summary — generate daily summary
+  if (request.method === "POST" && path === "/api/summary") {
+    return handlePostSummary(request, env, fetchImpl);
+  }
+
+  // Route: GET /api/summary — get cached daily summary
+  if (request.method === "GET" && path === "/api/summary") {
+    return handleGetSummary(request, env);
+  }
+
+  // Route: GET /api/feed — proxy feed URL
+  if (request.method === "GET" && path === "/api/feed") {
+    return handleFeedProxy(request, fetchImpl);
+  }
+
+  return jsonResponse({ error: "Not found" }, 404);
 }

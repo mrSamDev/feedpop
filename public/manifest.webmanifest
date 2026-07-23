@@ -1,0 +1,14 @@
+{
+  "name": "FeedPop — RSS Reader",
+  "short_name": "FeedPop",
+  "description": "A playful RSS feed reader",
+  "theme_color": "#f97316",
+  "background_color": "#f97316",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    { "src": "/pwa-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/pwa-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
