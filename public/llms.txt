@@ -1,0 +1,19 @@
+# FeedPop
+
+> A small, fast RSS and Atom reader. Add a feed URL, the app pulls the articles, and your subscriptions persist between visits. Built as a client-side React SPA with a Cloudflare Worker proxy that fetches feeds server-side to bypass browser CORS limits.
+
+FeedPop is a single-page application. The UI renders entirely in the browser; the only server-side component is a feed proxy worker. Subscriptions, read state, and theme are stored locally in the browser. A daily summary feature can condense recent articles via an OpenAI-backed worker endpoint.
+
+## API
+
+- [GET /api/feed](/api/feed): Proxy an RSS/Atom feed by URL. Pass the feed address as the `url` query parameter; returns the feed body with CORS headers and a 10-second timeout.
+- [GET /api/summary](/api/summary): Retrieve the most recently cached daily summary of articles across subscribed feeds.
+- [POST /api/summary](/api/summary): Generate a fresh daily summary (auth-gated; backed by OpenAI).
+
+## Source
+
+- [README](https://github.com/mrSamDev/feedpop): Project overview, local development, deployment, and Make targets.
+- [AGENTS.md](https://github.com/mrSamDev/feedpop/blob/main/AGENTS.md): Build, test, and architecture notes for agents working in this repository.
+- [DESIGN.md](https://github.com/mrSamDev/feedpop/blob/main/DESIGN.md): Visual design system, typography, color tokens, and component conventions.
+- [CONTRIBUTING.md](https://github.com/mrSamDev/feedpop/blob/main/CONTRIBUTING.md): How to contribute to the project.
+- [LICENSE](https://github.com/mrSamDev/feedpop/blob/main/LICENSE): MIT license.

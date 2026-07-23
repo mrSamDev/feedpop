@@ -11,8 +11,8 @@ export function SourcesBar({ feeds, selectedId, onSelect, onRemove }: SourcesBar
   if (feeds.length === 0) return null;
 
   return (
-    <nav className="panel fade-in flex flex-col gap-1 p-3">
-      <span className="mb-1 px-2 text-[0.7rem] font-bold uppercase tracking-[0.06em] text-ink-60">
+    <nav aria-label="Feed sources" className="panel fade-in flex flex-col gap-1 p-3">
+      <span className="mb-1 px-2 text-[0.7rem] font-bold uppercase tracking-[0.06em] text-ink-muted">
         Sources
       </span>
 
@@ -38,7 +38,7 @@ export function SourcesBar({ feeds, selectedId, onSelect, onRemove }: SourcesBar
             <button
               onClick={() => onRemove(feed.id)}
               aria-label={`Remove ${feed.title}`}
-              className="shrink-0 rounded-full border border-ink bg-panel-2 px-1 text-[0.6rem] font-bold text-ink opacity-0 transition-opacity hover:text-pink-error group-hover:opacity-100 group-focus-within:opacity-100"
+              className="shrink-0 rounded-full border border-ink bg-panel-2 px-1 text-[0.6rem] font-bold text-ink opacity-0 transition-opacity hover:text-pink-error group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
             >
               ✕
             </button>

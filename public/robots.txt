@@ -1,0 +1,6 @@
+# FeedPop — RSS Reader
+# Allow all crawlers full access.
+User-agent: *
+Allow: /
+
+# No sitemap yet; this is a client-side single-page app.

@@ -23,8 +23,7 @@ export function Header({
   return (
     <header className="panel fade-in flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-extrabold leading-tight text-ink"
-            style={{ fontFamily: "Baloo 2, ui-rounded, system-ui, sans-serif" }}>
+        <h1 className="font-display text-2xl font-extrabold leading-tight text-ink">
           FeedPop
         </h1>
         <div className="hidden items-center gap-2 sm:flex">
@@ -59,7 +58,7 @@ function StatPill({ label, value }: { label: string; value: number | string }) {
   return (
     <span className="stat-pill">
       <span className="text-sm font-extrabold text-ink">{value}</span>
-      <span className="text-[0.65rem] font-bold uppercase tracking-[0.06em] text-ink-60">{label}</span>
+      <span className="text-[0.65rem] font-bold uppercase tracking-[0.06em] text-ink-muted">{label}</span>
     </span>
   );
 }

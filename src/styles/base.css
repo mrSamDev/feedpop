@@ -8,16 +8,19 @@
   --color-surface: #e8eeee;      /* light teal-gray for chips/sources */
   --color-bg: #f5f8f8;           /* page background */
 
-  /* Accent pastels — used sparingly on chips + CTA only */
+  /* Accent pastels — used sparingly on chips + CTA only.
+     Pinks/blues are darkened from the original bright values so that white
+     chip and button text meets WCAG AA 4.5:1 contrast. */
   --color-yellow: #f9d84a;
-  --color-pink: #ff7fb4;
-  --color-pink-cta: #ff82b2;
-  --color-pink-cta-deep: #ff5d97;
-  --color-pink-cta-shadow: #ca3e74;
+  --color-pink: #c92d68;            /* chip-article bg — white text 5.17:1 */
+  --color-pink-cta: #c92d68;        /* CTA gradient top + focus ring — white text 5.17:1 */
+  --color-pink-cta-deep: #a8205a;   /* CTA gradient bottom + content links — white text 6.96:1 */
+  --color-pink-cta-shadow: #8a1f4f; /* 3-D press shadow under CTA buttons */
   --color-pink-error: #972959;
   --color-melon: #ff9f6e;
   --color-mint: #92efc5;
-  --color-bluey: #6d8cff;
+  --color-bluey: #3f5bff;           /* chip-video bg — white text 5.06:1 */
+  --color-link: #a8205a;            /* in-content hyperlinks — 6.96:1 on white */
 
   /* Type */
   --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
@@ -48,6 +51,7 @@
   --color-bg: #0d0d0d;           /* near-black page background */
   --color-pink-error: #ff8caa;   /* brighter rose for dark backgrounds */
   --color-mint: #2d7d6a;         /* muted green for selected/category chips */
+  --color-link: #ff5d97;        /* brighter pink link for dark backgrounds — 5.3:1 on #171717 */
   --shadow-rgb: 0 0 0;
   color-scheme: dark;
 }

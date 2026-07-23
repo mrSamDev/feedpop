@@ -8,7 +8,9 @@ function loadReadSet(): Set<string> {
     if (!raw) return new Set();
     const parsed = JSON.parse(raw);
     return new Set<string>(parsed);
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Failed to parse stored read articles: ${message}`);
     return new Set();
   }
 }
@@ -34,8 +36,8 @@ export function useReadArticles() {
     });
   }, []);
 
-  function unreadCount(total: number) {
-    return total - readIds.size;
+  function unreadCount(articleIds: string[]): number {
+    return articleIds.filter((id) => !readIds.has(id)).length;
   }
 
   return { readIds, markRead, unreadCount };

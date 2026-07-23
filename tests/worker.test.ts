@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { handleRequest } from "../worker/src/handler";
+import { generateSummary } from "../worker/src/summary";
 import type { Env } from "../worker/src/index";
 
 function makeRequest(url: string, method = "GET"): Request {
@@ -169,5 +170,75 @@ describe("handleRequest - summary endpoints", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as { summary: string };
     expect(body.summary).toBe("test");
+  });
+});
+
+describe("generateSummary - CDATA handling", () => {
+  const CDATA_XML = `<?xml version="1.0"?>
+<rss version="2.0"><channel>
+  <title>Tech News</title>
+  <link>https://tech.example.com</link>
+  <description>Tech feed</description>
+  <item>
+    <title><![CDATA[Hello & Goodbye]]></title>
+    <link>https://tech.example.com/1</link>
+    <description><![CDATA[<p>A & b story</p>]]></description>
+  </item>
+  <item>
+    <title>Plain Title</title>
+    <link>https://tech.example.com/2</link>
+    <description>Plain description</description>
+  </item>
+</channel></rss>`;
+
+  function mockKV() {
+    return {
+      get: vi.fn().mockResolvedValue(null),
+      put: vi.fn(),
+      delete: vi.fn(),
+      list: vi.fn().mockResolvedValue({ keys: [] }),
+    } as unknown as KVNamespace;
+  }
+
+  function mockOpenAI() {
+    return vi.fn(async (url: string | URL | Request) => {
+      if (url.toString().includes("openai.com")) {
+        return new Response(
+          JSON.stringify({
+            choices: [
+              { message: { content: '{"summary":"test","topics":["a"]}' } },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(CDATA_XML, {
+        status: 200,
+        headers: { "Content-Type": "application/xml" },
+      });
+    }) as unknown as typeof fetch;
+  }
+
+  it("extracts titles and descriptions from CDATA sections", async () => {
+    const fetchMock = mockOpenAI();
+    await generateSummary(
+      ["https://tech.example.com/rss"],
+      "sk-test",
+      mockKV(),
+      fetchMock,
+    );
+
+    // Find the OpenAI call and inspect the prompt
+    const openAICall = (fetchMock as unknown as ReturnType<typeof vi.fn>).mock.calls.find(
+      (call) => call[0].toString().includes("openai.com"),
+    );
+    expect(openAICall).toBeTruthy();
+    const body = JSON.parse(openAICall![1].body);
+    const prompt = body.messages[1].content;
+
+    // CDATA-wrapped title must be extracted, not lost
+    expect(prompt).toContain("Hello & Goodbye");
+    // CDATA-wrapped description must also be extracted
+    expect(prompt).toContain("A & b story");
   });
 });

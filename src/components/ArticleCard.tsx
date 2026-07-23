@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { Article } from "../types";
 import { formatRelative } from "../lib/format";
 import { estimateReadTime, wordCount } from "../lib/articleMetrics";
@@ -8,12 +9,17 @@ interface ArticleCardProps {
   isRead: boolean;
 }
 
-const FRESH_THRESHOLD_MS = 24 * 86_400_000;
+const FRESH_THRESHOLD_MS = 86_400_000; // 24 hours in milliseconds
 
 export function ArticleCard({ article, onOpen, isRead }: ArticleCardProps) {
   const isFresh = article.publishedAt !== null && Date.now() - article.publishedAt < FRESH_THRESHOLD_MS;
   const minutes = estimateReadTime(article.content);
   const words = wordCount(article.content);
+  const titleId = useId();
+
+  // Fold read/fresh state into the accessible name so screen-reader users can
+  // distinguish read from unread articles (SC 1.4.1 — not colour-only).
+  const statusLabel = `${isRead ? "read" : "unread"}${isFresh ? ", fresh" : ""}`;
 
   return (
     <article
@@ -21,7 +27,8 @@ export function ArticleCard({ article, onOpen, isRead }: ArticleCardProps) {
       onClick={() => onOpen(article)}
       role="button"
       tabIndex={0}
-      aria-label={article.title}
+      aria-labelledby={titleId}
+      aria-description={statusLabel}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -45,13 +52,15 @@ export function ArticleCard({ article, onOpen, isRead }: ArticleCardProps) {
         {article.publishedAt && (
           <span className="chip chip-neutral">{formatRelative(article.publishedAt)}</span>
         )}
-        {isFresh && <span className="fresh-dot" title="Fresh post" />}
+        {isFresh && (
+          <span className="fresh-dot" role="img" aria-label="Fresh post" title="Fresh post" />
+        )}
       </div>
 
       {/* Title — compact display font, 2-line clamp */}
       <h2
-        className="line-clamp-2 text-[1.05rem] font-bold leading-[1.2] text-ink"
-        style={{ fontFamily: "Baloo 2, ui-rounded, system-ui, sans-serif" }}
+        id={titleId}
+        className="font-display line-clamp-2 text-[1.05rem] font-bold leading-[1.2] text-ink"
       >
         {article.title}
       </h2>
@@ -66,6 +75,7 @@ export function ArticleCard({ article, onOpen, isRead }: ArticleCardProps) {
         <span className="chip chip-neutral">{minutes} min read</span>
         <span className="chip chip-neutral">{words} words</span>
       </div>
+
     </article>
   );
 }

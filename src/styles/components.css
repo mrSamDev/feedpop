@@ -129,7 +129,8 @@
   .text-input::placeholder {
     color: color-mix(in srgb, var(--color-ink) 40%, transparent);
   }
-  .text-input:focus {
+  .text-input:focus,
+  .text-input:focus-visible {
     outline: 2px solid var(--color-pink-cta);
     outline-offset: 1px;
   }
@@ -143,14 +144,36 @@
     border-radius: var(--radius-pill);
     flex-shrink: 0;
   }
+
+  /* Buttons and cards — visible keyboard focus ring (SC 2.4.7) */
+  .btn:focus-visible,
+  .card:focus-visible {
+    outline: 2px solid var(--color-pink-cta);
+    outline-offset: 2px;
+  }
 }
 
 @layer utilities {
-  .text-ink-60 { color: color-mix(in srgb, var(--color-ink) 60%, transparent); }
+  /* Secondary text — calibrated to 75% ink so it passes WCAG AA 4.5:1
+     on panel/card backgrounds in both light (4.9:1) and dark (7.4:1) modes. */
+  .text-ink-muted { color: color-mix(in srgb, var(--color-ink) 75%, transparent); }
   .text-ink-80 { color: color-mix(in srgb, var(--color-ink) 80%, transparent); }
   .text-ink-40 { color: color-mix(in srgb, var(--color-ink) 40%, transparent); }
   .spin { animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .fade-in { animation: fadeIn 0.15s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .font-display { font-family: var(--font-display); }
+}
+
+/* Respect users who prefer reduced motion (SC 2.3.3) — disable all
+   decorative animation and transform-based transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .spin, .fade-in {
+    animation: none !important;
+  }
+  .card, .btn, .btn-refresh, .btn-secondary, .btn-open {
+    transition: none !important;
+    transform: none !important;
+  }
 }

@@ -17,7 +17,10 @@ export function DailyBrief({
 }: DailyBriefProps) {
   if (error) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-lg border border-pink-error/30 bg-pink-error/5 px-4 py-2.5 text-sm font-bold text-pink-error">
+      <div
+        role="alert"
+        className="flex items-center justify-between gap-3 rounded-lg border border-pink-error/30 bg-pink-error/5 px-4 py-2.5 text-sm font-bold text-pink-error"
+      >
         <span>{error}</span>
         <button
           onClick={onDismiss}
@@ -35,7 +38,7 @@ export function DailyBrief({
       <div className="panel fade-in flex flex-col gap-3 px-5 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg" style={{ fontFamily: "Baloo 2, ui-rounded, system-ui, sans-serif" }}>
+            <span className="font-display text-lg">
               ☕ Today's Brief
             </span>
             <span className="chip chip-category text-[0.6rem]">{summary.date}</span>
@@ -53,7 +56,7 @@ export function DailyBrief({
 
         {summary.topics.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[0.65rem] font-bold uppercase tracking-[0.06em] text-ink-60">Topics</span>
+            <span className="text-[0.65rem] font-bold uppercase tracking-[0.06em] text-ink-muted">Topics</span>
             {summary.topics.map((topic) => (
               <span key={topic} className="chip chip-neutral text-[0.6rem]">
                 {topic}
@@ -67,7 +70,7 @@ export function DailyBrief({
 
   return (
     <div className="panel fade-in flex items-center justify-between gap-3 px-5 py-3">
-      <p className="text-sm font-bold text-ink-60">
+      <p className="text-sm font-bold text-ink-muted">
         No daily brief yet
       </p>
       <button

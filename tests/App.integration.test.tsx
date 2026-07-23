@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithQuery } from "./helpers/render";
@@ -68,6 +68,48 @@ describe("App - add feed flow", () => {
     await user.click(screen.getByRole("button", { name: /add feed/i }));
 
     await waitFor(() => expect(screen.getByText(/network down/i)).toBeInTheDocument());
+  });
+
+  it("hides the feed-load error when the dismiss button is clicked", async () => {
+    const user = userEvent.setup();
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/api/summary")) {
+        return new Response(null, { status: 404 });
+      }
+      return new Response(JSON.stringify({ error: "Failed to fetch feed: network down" }), {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as Mock;
+    vi.stubGlobal("fetch", fetchMock);
+
+    // Pre-seed a subscription so useFeeds tries to fetch and fails (feedError, not addError)
+    localStorage.setItem(
+      "rss-feeds",
+      JSON.stringify([
+        { id: "sub-1", url: "https://x.com/rss", title: "Mock Feed", addedAt: Date.now() },
+      ]),
+    );
+
+    renderWithQuery(<App />);
+
+    await waitFor(() => expect(screen.getByText(/network down/i)).toBeInTheDocument(), {
+      timeout: 5000,
+    });
+
+    const callsBeforeDismiss = fetchMock.mock.calls.length;
+
+    // The ✕ button labeled "Dismiss" should hide the error without refetching
+    await user.click(screen.getByRole("button", { name: /^dismiss$/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/network down/i)).not.toBeInTheDocument();
+    });
+
+    // Dismiss must not trigger a refetch (that's what the Retry button does)
+    expect(fetchMock.mock.calls.length).toBe(callsBeforeDismiss);
   });
 });
 

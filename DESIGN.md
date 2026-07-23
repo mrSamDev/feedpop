@@ -8,14 +8,15 @@ colors:
   surface: "#e8eeee"
   bg: "#f5f8f8"
   yellow: "#f9d84a"
-  pink: "#ff7fb4"
-  pink-cta: "#ff82b2"
-  pink-cta-deep: "#ff5d97"
-  pink-cta-shadow: "#ca3e74"
+  pink: "#c92d68"
+  pink-cta: "#c92d68"
+  pink-cta-deep: "#a8205a"
+  pink-cta-shadow: "#8a1f4f"
   pink-error: "#972959"
   melon: "#ff9f6e"
   mint: "#92efc5"
-  bluey: "#6d8cff"
+  bluey: "#3f5bff"
+  link: "#a8205a"
 colors-dark:
   ink: "#ffffff"
   panel: "#171717"
@@ -23,14 +24,15 @@ colors-dark:
   surface: "#111111"
   bg: "#0d0d0d"
   yellow: "#f9d84a"
-  pink: "#ff7fb4"
-  pink-cta: "#ff82b2"
-  pink-cta-deep: "#ff5d97"
-  pink-cta-shadow: "#ca3e74"
+  pink: "#c92d68"
+  pink-cta: "#c92d68"
+  pink-cta-deep: "#a8205a"
+  pink-cta-shadow: "#8a1f4f"
   pink-error: "#ff8caa"
   melon: "#ff9f6e"
-  mint: "#2a6b52"
-  bluey: "#6d8cff"
+  mint: "#2d7d6a"
+  bluey: "#3f5bff"
+  link: "#ff5d97"
 typography:
   display-app:
     fontFamily: Baloo 2
@@ -183,11 +185,12 @@ The palette keeps the original warm ink and pastel accents but uses them more sp
 - **Surface (#e8eeee):** Light teal-gray for secondary containers (sources bar, neutral chips).
 - **BG (#f5f8f8):** Page background. Solid very-light teal-white — no gradients.
 - **Yellow (#f9d84a):** "Read original" CTA in the modal and the fresh-post dot.
-- **Pink (#ff7fb4):** Chip color for "article" type tags. Pink and teal are complementary — the accent pops.
-- **Pink-CTA (#ff82b2 → #ff5d97):** The refresh/sync button gradient. Primary action color. Shadow: `#ca3e74`.
+- **Pink (#c92d68):** Chip color for "article" type tags. Darkened from the original bright pink so white chip text meets WCAG AA 4.5:1 contrast (5.17:1).
+- **Pink-CTA (#c92d68 → #a8205a):** The refresh/sync button gradient. Primary action color. Darkened so white text passes AA (5.17:1 top, 6.96:1 bottom). Shadow: `#8a1f4f`.
+- **Link (#a8205a):** Hyperlink color inside article content. 6.96:1 on white in light mode. In dark mode, a brighter `#ff5d97` (6.2:1 on panel) is used instead.
 - **Pink-error (#972959):** Dark rose for error text and error borders.
 - **Mint (#92efc5):** Category chips and the active/selected source highlight.
-- **Bluey (#6d8cff):** "Video" type chip only.
+- **Bluey (#3f5bff):** "Video" type chip only. Darkened so white text passes AA (5.06:1).
 
 ### Dark theme
 
@@ -199,11 +202,11 @@ Simple black and white — no tinted surfaces, just neutral grays.
 - **Surface (#111111):** Near-black for chips and sources bar (recessed look).
 - **BG (#0d0d0d):** Near-black page background.
 - **Yellow (#f9d84a):** Unchanged. The "Read original" button uses fixed black text (#000000) in dark mode for contrast.
-- **Pink (#ff7fb4):** Unchanged. Bright enough on black.
-- **Pink-CTA (#ff82b2 → #ff5d97):** Unchanged gradient. White text still works.
+- **Pink (#c92d68):** Unchanged from light — dark enough for white text on black.
+- **Pink-CTA (#c92d68 → #a8205a):** Unchanged gradient. White text passes AA.
 - **Pink-error (#ff8caa):** Brighter rose for error text — the light-theme value is too dark on black.
 - **Mint (#2d7d6a):** Muted green for selected/category chips. White text on this green has good contrast.
-- **Bluey (#6d8cff):** Unchanged. Works on black.
+- **Bluey (#3f5bff):** Unchanged from light — white text passes AA on black.
 
 In dark mode, shadows use pure black (`rgb(0 0 0 / ...)`). The dark theme is simple black and white — no teal tints, just neutral grays.
 
@@ -254,7 +257,7 @@ Depth is subtle — just enough to separate layers without adding visual noise.
 
 **Article cards:** `0 1px 3px rgb(var(--shadow-rgb) / 0.06)` — barely there, just enough to lift the white card off the warm background. On hover: `0 2px 8px rgb(var(--shadow-rgb) / 0.12)` with a subtle `translateY(-1px)` lift.
 
-**Refresh button:** `0 4px 0 #ca3e74` — keeps the signature hard shadow on the primary CTA only. On hover: `translateY(-1px)`. On active: `translateY(2px)` with `0 2px 0` shadow.
+**Refresh button:** `0 4px 0 #8a1f4f` — keeps the signature hard shadow on the primary CTA only. On hover: `translateY(-1px)`. On active: `translateY(2px)` with `0 2px 0` shadow.
 
 No thumbnail offset blocks. No decorative rotated shapes. The content is the design.
 
@@ -282,9 +285,22 @@ The app implements a manual light/dark theme toggle with system preference fallb
 
 **Adaptations beyond color variables:**
 - The "Read original" button uses fixed black text (`#000000`) in dark mode — white on bright yellow has poor contrast.
+- Content links use a dedicated `--color-link` token (`#a8205a` light, `#ff5d97` dark) instead of `--color-pink-cta-deep`, because the CTA gradient needs a dark pink for white text while links need a bright pink on dark backgrounds.
 - Shadows use pure black in both themes (light: teal-tinted, dark: pure black).
 - Native form controls and scrollbars respect the theme via `color-scheme: dark`.
 - The modal backdrop always uses `bg-black/40` (not `bg-ink/40`) so it stays dark in both themes.
+
+**Accessibility (WCAG 2.2 AA):**
+- Pink and blue accent colors are darkened so all white-on-color text meets 4.5:1 contrast.
+- Secondary text uses `text-ink-muted` (75% ink) instead of 60%, ensuring 4.5:1 on panel/card surfaces in light mode.
+- `:focus-visible` rings (2px pink-cta outline) on all buttons and article cards.
+- `@media (prefers-reduced-motion: reduce)` disables all decorative animation (spin, fade-in) and transform-based transitions.
+- The article modal uses `role="dialog" aria-modal="true"`, traps Tab focus, and restores focus to the triggering card on close.
+- Error banners use `role="alert"`; loading states use an `aria-live="polite"` region.
+- Article read/fresh status is exposed via `aria-description`, not colour/opacity alone.
+- The article grid uses `role="list"`/`role="listitem"` for screen-reader list navigation.
+- A skip-to-content link is the first focusable element.
+- Form inputs have associated `<label>` elements; invalid input triggers `role="alert"` and `aria-invalid`.
 
 ## Components
 
@@ -316,11 +332,11 @@ The app implements a manual light/dark theme toggle with system preference fallb
 - Category: mint background, ink text
 - Selected source: mint background (toggled on the neutral chip)
 
-**Refresh button (primary CTA):** Vertical gradient `#ff82b2 → #ff5d97`, white text, pill, 2px ink border, hard shadow `0 4px 0 #ca3e74`. Compact: 8px 14px padding, 0.82rem text. Contains a sync icon or "…" for loading. Hover lifts `translateY(-1px)`.
+**Refresh button (primary CTA):** Vertical gradient `#c92d68 → #a8205a`, white text, pill, 2px ink border, hard shadow `0 4px 0 #8a1f4f`. Compact: 8px 14px padding, 0.82rem text. Contains a sync icon or "…" for loading. Hover lifts `translateY(-1px)`.
 
 **Secondary buttons:** White/panel-2 background, ink text, 2px ink border, pill. Used for "Add", theme toggle, modal close. Compact: 8px 14px padding. Hover lifts `translateY(-1px)`.
 
-**Read original button (modal):** Yellow background, ink text, 2px ink border, pill. Same compact sizing. Includes an arrow icon. In dark mode, text is fixed to `#15142a` for contrast.
+**Read original button (modal):** Yellow background, ink text, 2px ink border, pill. Same compact sizing. Includes an arrow icon and a visually-hidden "(opens in a new tab)" indicator for screen readers. In dark mode, text is fixed to `#000000` for contrast.
 
 **Text input:** White/panel-2 background, 1px ink border, 10px radius, 8px 12px padding. Placeholder uses ink at 40% opacity. Flat, no inset shadow.
 
@@ -337,7 +353,7 @@ The app implements a manual light/dark theme toggle with system preference fallb
 - Use three columns on desktop for the article grid
 - Keep the header to a single compact bar — no giant hero
 - Use Baloo 2 for titles and the app name only
-- Apply the hard CTA shadow (`0 4px 0 #ca3e74`) to the refresh button only
+- Apply the hard CTA shadow (`0 4px 0 #8a1f4f`) to the refresh button only
 - Use `translateY(-1px)` on hover for cards and buttons
 - Show read time and word count as small chips at the bottom of each card
 - Support dark mode via CSS variable overrides on `[data-theme="dark"]`

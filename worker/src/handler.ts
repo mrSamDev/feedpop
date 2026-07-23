@@ -2,6 +2,11 @@ import type { Env } from "./index";
 import { handleFeedProxy } from "./feedProxy";
 import { generateSummary, getCachedSummary } from "./summary";
 
+
+// CORS: wildcard is intentional. The proxy serves public RSS feed data and
+// a read-only cached summary — no user-specific or sensitive data. The
+// destructive POST /api/summary (calls OpenAI) is auth-gated separately.
+// Restricting the origin would break local dev and preview deployments.
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",

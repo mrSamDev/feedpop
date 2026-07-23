@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Article } from "../types";
 import { ArticleCard } from "./ArticleCard";
 
@@ -13,16 +13,11 @@ interface ArticleGridProps {
 export function ArticleGrid({ articles, onOpen, readIds }: ArticleGridProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  // Reset only when the visible set changes, not on every refetch
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [articles.length]);
-
   if (articles.length === 0) {
     return (
       <div className="panel px-5 py-10 text-center">
-        <p className="text-base font-bold text-ink">No articles yet</p>
-        <p className="mt-1 text-sm text-ink-60">Add a feed URL above to start reading.</p>
+        <h2 className="text-base font-bold text-ink">No articles yet</h2>
+        <p className="mt-1 text-sm text-ink-muted">Add a feed URL above to start reading.</p>
       </div>
     );
   }
@@ -32,16 +27,17 @@ export function ArticleGrid({ articles, onOpen, readIds }: ArticleGridProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <ul role="list" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {visible.map((article) => (
-          <ArticleCard
-            key={article.id}
-            article={article}
-            onOpen={onOpen}
-            isRead={readIds.has(article.id)}
-          />
+          <li key={article.id} role="listitem">
+            <ArticleCard
+              article={article}
+              onOpen={onOpen}
+              isRead={readIds.has(article.id)}
+            />
+          </li>
         ))}
-      </div>
+      </ul>
       {hasMore && (
         <div className="flex justify-center">
           <button

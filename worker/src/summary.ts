@@ -44,30 +44,37 @@ async function fetchFeed(
     if (!res.ok) return [];
     const xml = await res.text();
 
-    // Simple RSS/Atom parser — extract titles + descriptions
+    // Simple RSS/Atom parser — extract titles + descriptions.
+    // Handles CDATA sections and HTML entities.
     const items: FeedItem[] = [];
-    const titleRegex = /<title[^>]*>([^<]+)<\/title>/gi;
-    const descRegex = /<description[^>]*>([^<]+)<\/description>/gi;
-    const contentRegex = /<content[^>]*>([^<]+)<\/content>/gi;
+    const titleRegex = /<title[^>]*>([\s\S]*?)<\/title>/gi;
+    const descRegex = /<description[^>]*>([\s\S]*?)<\/description>/gi;
+    const contentRegex = /<content[^>]*>([\s\S]*?)<\/content>/gi;
+
+    function stripCdata(raw: string): string {
+      const cdataMatch = raw.match(/^<!\[CDATA\[([\s\S]*?)\]\]>$/);
+      if (cdataMatch) return cdataMatch[1].trim();
+      return raw.trim();
+    }
 
     const titles: string[] = [];
     let match;
     while ((match = titleRegex.exec(xml)) !== null) {
       // Skip feed-level title (first <title> is usually the feed name)
       if (titles.length === 0) {
-        titles.push(match[1]);
+        titles.push(stripCdata(match[1]));
         continue;
       }
-      titles.push(match[1]);
+      titles.push(stripCdata(match[1]));
     }
 
     const descriptions: string[] = [];
     while ((match = descRegex.exec(xml)) !== null) {
-      descriptions.push(match[1]);
+      descriptions.push(stripCdata(match[1]));
     }
     while ((match = contentRegex.exec(xml)) !== null) {
       if (descriptions.length < titles.length - 1) {
-        descriptions.push(match[1]);
+        descriptions.push(stripCdata(match[1]));
       }
     }
 
