@@ -3,3 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2024-12-01"
 
 [vars]
+
+[[kv_namespaces]]
+binding = "SUMMARY_KV"
+id = "4f111d69c5d2488bbfcb7e6181521e33"
