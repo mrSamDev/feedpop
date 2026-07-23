@@ -7,9 +7,18 @@ interface UseAddFeedCallbacks {
   onFeedError: (message: string) => void;
 }
 
+interface AddFeedInput {
+  url: string;
+  title: string;
+}
+
 export function useAddFeed(callbacks: UseAddFeedCallbacks) {
   return useMutation({
-    mutationFn: (url: string) => fetchFeed(url),
+    mutationFn: async ({ url, title }: AddFeedInput) => {
+      const feed = await fetchFeed(url);
+      // Use the custom title if provided, otherwise keep the parsed feed title.
+      return title ? { ...feed, title } : feed;
+    },
     onSuccess: (feed) => {
       callbacks.onFeedAdded(feed);
     },

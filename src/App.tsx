@@ -124,7 +124,7 @@ export function App() {
               </div>
             )}
 
-            <AddFeed isAdding={addMutation.isPending} onAdd={addMutation.mutate} />
+            <AddFeed isAdding={addMutation.isPending} onAdd={(url, title) => addMutation.mutate({ url, title })} />
 
             {dailySummary !== null && (
               <DailyBrief
