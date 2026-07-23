@@ -7,7 +7,7 @@ const SUMMARY_KEY = ["daily-summary"];
 export function useDailySummary() {
   const queryClient = useQueryClient();
 
-  const { data: summary } = useQuery({
+  const query = useQuery({
     queryKey: SUMMARY_KEY,
     queryFn: fetchCachedSummary,
     staleTime: 24 * 60 * 60_000,
@@ -26,10 +26,17 @@ export function useDailySummary() {
   }, [queryClient]);
 
   return {
-    summary: summary ?? null,
+    summary: query.data ?? null,
     isGenerating: mutation.isPending,
-    error: mutation.error instanceof Error ? mutation.error.message : null,
+    // Mutation errors take precedence (most recent user action); fall back to the
+    // background cache-fetch error so it is never silently swallowed.
+    error: errorMessage(mutation.error) ?? errorMessage(query.error),
     generate: mutation.mutate,
     dismiss,
   };
+}
+
+function errorMessage(error: unknown): string | null {
+  if (!(error instanceof Error)) return null;
+  return error.message;
 }

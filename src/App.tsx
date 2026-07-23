@@ -129,9 +129,6 @@ export function App() {
             {dailySummary !== null && (
               <DailyBrief
                 summary={dailySummary}
-                isGenerating={false}
-                error={null}
-                onGenerate={() => {}}
                 onDismiss={dismissSummary}
               />
             )}

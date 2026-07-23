@@ -13,6 +13,7 @@ interface ArticleGridProps {
 export function ArticleGrid({ articles, onOpen, readIds }: ArticleGridProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
+  // Reset only when the visible set changes, not on every refetch
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [articles.length]);

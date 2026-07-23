@@ -2,13 +2,19 @@ import type { DailySummary } from "../types";
 
 interface DailyBriefProps {
   summary: DailySummary | null;
-  isGenerating: boolean;
-  error: string | null;
-  onGenerate: () => void;
+  isGenerating?: boolean;
+  error?: string | null;
+  onGenerate?: () => void;
   onDismiss: () => void;
 }
 
-export function DailyBrief({ summary, isGenerating, error, onGenerate, onDismiss }: DailyBriefProps) {
+export function DailyBrief({
+  summary,
+  isGenerating = false,
+  error = null,
+  onGenerate,
+  onDismiss,
+}: DailyBriefProps) {
   if (error) {
     return (
       <div className="flex items-center justify-between gap-3 rounded-lg border border-pink-error/30 bg-pink-error/5 px-4 py-2.5 text-sm font-bold text-pink-error">
