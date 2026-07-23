@@ -83,3 +83,7 @@ make deploy-pages PROXY_URL=https://rss-feed-proxy.<your-subdomain>.workers.dev
 ```
 
 Leave `PROXY_URL` empty and the frontend falls back to the relative `/api/feed` path, which only works when the page and the proxy share an origin.
+
+## License
+
+FeedPop is released under the [MIT License](./LICENSE). See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for how to contribute, [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) for community standards, and [`SECURITY.md`](./SECURITY.md) for reporting vulnerabilities.

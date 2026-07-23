@@ -1,34 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Feed, FeedSubscription } from "../types";
 import { loadFeeds, saveFeeds } from "../lib/storage";
-
-function makeSubscription(feed: Feed): FeedSubscription {
-  return {
-    id: crypto.randomUUID(),
-    url: feed.url,
-    title: feed.title,
-    addedAt: Date.now(),
-  };
-}
+import { makeSubscription } from "../lib/feedTransform";
 
 export function useSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<FeedSubscription[]>(() => loadFeeds());
 
+  // Persist to localStorage whenever subscriptions change
+  useEffect(() => {
+    saveFeeds(subscriptions);
+  }, [subscriptions]);
+
   function addSubscription(feed: Feed) {
-    setSubscriptions((prev) => {
-      if (prev.some((s) => s.url === feed.url)) return prev;
-      const next = [...prev, makeSubscription(feed)];
-      saveFeeds(next);
-      return next;
-    });
+    setSubscriptions((prev) =>
+      prev.some((s) => s.url === feed.url) ? prev : [...prev, makeSubscription(feed)],
+    );
   }
 
   function removeSubscription(id: string) {
-    setSubscriptions((prev) => {
-      const next = prev.filter((s) => s.id !== id);
-      saveFeeds(next);
-      return next;
-    });
+    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
   }
 
   return { subscriptions, addSubscription, removeSubscription };
